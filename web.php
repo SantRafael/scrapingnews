@@ -31,7 +31,7 @@ function getContents($url){
         ),
     );      
 
-    $siteConteudo = file_get_contents('https://www.techtudo.com.br/noticias/plantao.html', false, stream_context_create($arrContextOptions));
+    $siteConteudo = file_get_contents($url, false, stream_context_create($arrContextOptions));
     
     libxml_use_internal_errors(true);
     
@@ -43,12 +43,8 @@ function getContents($url){
     return $xpath;
 }
 
-function getNews($site, $url){
-    $xpath = getContents($url);
-    $techtudo = [];
-
-    for($i = 0;$i < 3; $i++)
-    {
+function getElements($site, $i){
+    if($site == 'techtudo'){
         switch($i){
             case 0:
                 $tag                 = 'div';
@@ -72,19 +68,60 @@ function getNews($site, $url){
                 $returnAttribute     = 'src';
                 break;                                
         }
-
-        switch($site){
-            case 'techtudo': 
-                $techtudo = getConteudo($xpath, $tag, $attributeName, $attribute, $returnAttributeName, $returnAttribute, $techtudo);
+    }elseif($site == 'uol'){
+        switch($i){
+            case 0:
+                $tag                 = 'h3';
+                $attributeName       = 'class';
+                $attribute           = 'thumb-title';
+                $returnAttributeName = 'texto';
+                $returnAttribute     = 'text';
                 break;
-
+            case 1:
+                $tag                 = 'a';
+                $attributeName       = 'class';
+                $attribute           = 'thumb-link';
+                $returnAttributeName = 'link';
+                $returnAttribute     = 'href';
+                break;
+            case 2:
+                $tag                 = 'img';
+                $attributeName       = 'pinger-seen';
+                $attribute           = 'true';
+                $returnAttributeName = 'img';
+                $returnAttribute     = 'src';
+                break;                                
         }
-        
     }
 
-    return $techtudo;
+    $elements = [
+        'tag'                 => $tag,
+        'attributeName'       => $attributeName,
+        'attribute'           => $attribute,
+        'returnAttributeName' => $returnAttributeName,
+        'returnAttribute'     => $returnAttribute       
+    ];
+
+    return $elements;
+
 }
 
+function getNews($site, $url){
+    $xpath = getContents($url);
+    $conteudo = [];
+
+    for($i = 0;$i < 3; $i++){
+        $elements = getElements($site, $i);
+        $conteudo = getConteudo($xpath, $elements['tag'], $elements['attributeName'], $elements['attribute'], $elements['returnAttributeName'], $elements['returnAttribute'], $conteudo);        
+    }
+
+    return $conteudo;
+}
+
+// echo '<pre>';
+// print_r(getNews('techtudo', 'https://www.techtudo.com.br/noticias/plantao.html'));
+// echo '</pre>';
+
 echo '<pre>';
-print_r(getNews('techtudo', 'https://www.techtudo.com.br/noticias/plantao.html'));
+print_r(getNews('uol', 'https://www.uol.com.br/tilt/'));
 echo '</pre>';
