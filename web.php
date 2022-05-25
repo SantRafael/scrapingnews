@@ -92,6 +92,30 @@ function getElements($site, $i){
                 $returnAttribute     = 'src';
                 break;                                
         }
+    }elseif('infomoney'){
+        switch($i){
+            case 0:
+                $tag                 = 'h3';
+                $attributeName       = 'class';
+                $attribute           = 'article-card__headline';
+                $returnAttributeName = 'texto';
+                $returnAttribute     = 'text';
+                break;
+            case 1:
+                $tag                 = 'a';
+                $attributeName       = 'class';
+                $attribute           = 'article-card__headline-link';
+                $returnAttributeName = 'link';
+                $returnAttribute     = 'href';
+                break;
+            case 2:
+                $tag                 = 'img';
+                $attributeName       = 'class';
+                $attribute           = 'aspect-ratio__image';
+                $returnAttributeName = 'img';
+                $returnAttribute     = 'src';
+                break;                                
+        }
     }
 
     $elements = [
@@ -122,6 +146,10 @@ function getNews($site, $url){
 // print_r(getNews('techtudo', 'https://www.techtudo.com.br/noticias/plantao.html'));
 // echo '</pre>';
 
+// echo '<pre>';
+// print_r(getNews('uol', 'https://www.uol.com.br/tilt/'));
+// echo '</pre>';
+
 echo '<pre>';
-print_r(getNews('uol', 'https://www.uol.com.br/tilt/'));
+print_r(getNews('infomoney', 'https://www.infomoney.com.br/economia/'));
 echo '</pre>';
