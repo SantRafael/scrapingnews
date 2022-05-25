@@ -1,12 +1,17 @@
 <?php
 
-function getConteudo($xpath, $tag, $attributeName, $attribute, $returnAttributeName, $returnAttribute, $conteudo){
+function getConteudo($site, $xpath, $tag, $attributeName, $attribute, $returnAttributeName, $returnAttribute, $conteudo){
 
     $query = $xpath->query("//$tag");
     $i = 0;
+    $j = 0;
     foreach($query as $link){
-
         if(strpos($link->getAttribute("$attributeName"), "$attribute") === 0){
+
+            if(($site == 'tecmundo') && ($j < 32) &&  ($tag == 'img'|| $tag == 'a')){
+                $j++;
+                continue;
+            }
 
             if($returnAttribute == 'text')
                 $conteudo[$i]["$returnAttributeName"] = $link->textContent;
@@ -16,7 +21,7 @@ function getConteudo($xpath, $tag, $attributeName, $attribute, $returnAttributeN
             $i++;
 
         }
-
+    
     }
 
     return $conteudo;
@@ -32,7 +37,7 @@ function getContents($url){
     );      
 
     $siteConteudo = file_get_contents($url, false, stream_context_create($arrContextOptions));
-    
+
     libxml_use_internal_errors(true);
     
     $dom = new DOMDocument();
@@ -47,63 +52,31 @@ function getElements($site, $i){
     if($site == 'techtudo'){
         switch($i){
             case 0:
-                $tag                 = 'div';
-                $attributeName       = 'class';
-                $attribute           = 'feed-post-body-title';
-                $returnAttributeName = 'texto';
-                $returnAttribute     = 'text';
-                break;
+                return ['tag' => 'div', 'attributeName' => 'class', 'attribute' => 'feed-post-body-title', 'returnAttributeName' => 'texto', 'returnAttribute' => 'text'];
             case 1:
-                $tag                 = 'a';
-                $attributeName       = 'class';
-                $attribute           = 'feed-post-link';
-                $returnAttributeName = 'link';
-                $returnAttribute     = 'href';
-                break;
+                return ['tag' => 'a', 'attributeName' => 'class', 'attribute' => 'feed-post-link', 'returnAttributeName' => 'link', 'returnAttribute' => 'href'];
             case 2:
-                $tag                 = 'img';
-                $attributeName       = 'class';
-                $attribute           = 'bstn-fd-picture-image';
-                $returnAttributeName = 'img';
-                $returnAttribute     = 'src';
-                break;                                
+                return ['tag' => 'img', 'attributeName' => 'class', 'attribute' => 'bstn-fd-picture-image', 'returnAttributeName' => 'img', 'returnAttribute' => 'src'];
         }
-    } elseif('infomoney'){
+    } elseif($site ==  'infomoney'){
         switch($i){
             case 0:
-                $tag                 = 'h3';
-                $attributeName       = 'class';
-                $attribute           = 'article-card__headline';
-                $returnAttributeName = 'texto';
-                $returnAttribute     = 'text';
-                break;
+                return ['tag' => 'h3', 'attributeName' => 'class', 'attribute' => 'article-card__headline', 'returnAttributeName' => 'texto', 'returnAttribute' => 'text'];
             case 1:
-                $tag                 = 'a';
-                $attributeName       = 'class';
-                $attribute           = 'article-card__headline-link';
-                $returnAttributeName = 'link';
-                $returnAttribute     = 'href';
-                break;
+                return ['tag' => 'a', 'attributeName' => 'class', 'attribute' => 'article-card__headline-link', 'returnAttributeName' => 'link', 'returnAttribute' => 'href'];
             case 2:
-                $tag                 = 'img';
-                $attributeName       = 'class';
-                $attribute           = 'aspect-ratio__image';
-                $returnAttributeName = 'img';
-                $returnAttribute     = 'src';
-                break;                                
+                return ['tag' => 'img', 'attributeName' => 'class', 'attribute' => 'aspect-ratio__image', 'returnAttributeName' => 'img', 'returnAttribute' => 'src'];
+        }
+    } elseif($site == 'tecmundo'){
+        switch($i){
+            case 0:
+                return ['tag' => 'h3', 'attributeName' => 'class', 'attribute' => 'tec--card__title', 'returnAttributeName' => 'texto', 'returnAttribute' => 'text'];
+            case 1:
+                return ['tag' => 'a', 'attributeName' => 'class', 'attribute' => 'tec--card__title__link', 'returnAttributeName' => 'link', 'returnAttribute' => 'href'];
+            case 2:
+                return ['tag' => 'img', 'attributeName' => 'class', 'attribute' => 'tec--card__thumb__image', 'returnAttributeName' => 'img', 'returnAttribute' => 'data-src'];
         }
     }
-
-    $elements = [
-        'tag'                 => $tag,
-        'attributeName'       => $attributeName,
-        'attribute'           => $attribute,
-        'returnAttributeName' => $returnAttributeName,
-        'returnAttribute'     => $returnAttribute       
-    ];
-
-    return $elements;
-
 }
 
 function getNews($site, $url){
@@ -112,16 +85,17 @@ function getNews($site, $url){
 
     for($i = 0;$i < 3; $i++){
         $elements = getElements($site, $i);
-        $conteudo = getConteudo($xpath, $elements['tag'], $elements['attributeName'], $elements['attribute'], $elements['returnAttributeName'], $elements['returnAttribute'], $conteudo);        
+        $conteudo = getConteudo($site, $xpath, $elements['tag'], $elements['attributeName'], $elements['attribute'], $elements['returnAttributeName'], $elements['returnAttribute'], $conteudo);        
     }
 
     return $conteudo;
 }
 
-echo '<pre>';
-print_r(getNews('techtudo', 'https://www.techtudo.com.br/noticias/plantao.html'));
-echo '</pre>';
+
+$news['techtudo'] = getNews('techtudo', 'https://www.techtudo.com.br/noticias/plantao.html');
+$news['infomoney'] = getNews('infomoney', 'https://www.infomoney.com.br/economia/');
+$news['tecmundo'] = getNews('tecmundo', 'https://www.tecmundo.com.br/noticias');
 
 echo '<pre>';
-print_r(getNews('infomoney', 'https://www.infomoney.com.br/economia/'));
+print_r($news);
 echo '</pre>';
