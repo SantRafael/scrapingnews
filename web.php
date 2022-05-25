@@ -1,6 +1,6 @@
 <?php
 
-function getConteudo($xpath, $tag, $attributeName, $attribute, $returnAttributeName, $returnAttribute){
+function getConteudo($xpath, $tag, $attributeName, $attribute, $returnAttributeName, $returnAttribute, $conteudo){
 
     $query = $xpath->query("//$tag");
     $i = 0;
@@ -75,7 +75,7 @@ function getNews($site, $url){
 
         switch($site){
             case 'techtudo': 
-                $techtudo[] = getConteudo($xpath, $tag, $attributeName, $attribute, $returnAttributeName, $returnAttribute);
+                $techtudo = getConteudo($xpath, $tag, $attributeName, $attribute, $returnAttributeName, $returnAttribute, $techtudo);
                 break;
 
         }
